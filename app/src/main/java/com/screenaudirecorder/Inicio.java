@@ -35,6 +35,7 @@ import static android.media.MediaRecorder.*;
 public class Inicio extends AppCompatActivity {
 
     Button btn_action;
+    Button btn_action_audio;
 
     private static final String TAG = "InicioActivity";
     private static final int REQUEST_CODE = 1000;
@@ -50,6 +51,9 @@ public class Inicio extends AppCompatActivity {
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_PERMISSION_KEY = 1;
     boolean isRecording = false;
+    boolean isRecordingAudio = false;
+
+    private Audio audio;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -65,6 +69,7 @@ public class Inicio extends AppCompatActivity {
         setContentView(R.layout.activity_inicio);
 
         String[] PERMISSIONS = {
+                Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE
         };
@@ -89,13 +94,30 @@ public class Inicio extends AppCompatActivity {
                 onToggleScreenShare();
             }
         });
+
+        audio = new Audio(this);
+        btn_action_audio = findViewById(R.id.btn_action_audio);
+        btn_action_audio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isRecordingAudio) {
+                    btn_action.setText("Stop Recording Audio");
+                    audio.record();
+                    isRecordingAudio = true;
+                } else {
+                    btn_action.setText("Start Recording Audio");
+                    audio.stop();
+                    isRecordingAudio = false;
+                }
+            }
+        });
     }
 
     public void actionBtnReload() {
         if (isRecording) {
-            btn_action.setText("Stop Recording");
+            btn_action.setText("Stop Recording Screen");
         } else {
-            btn_action.setText("Start Recording");
+            btn_action.setText("Start Recording Screen");
         }
 
     }
@@ -272,7 +294,7 @@ public class Inicio extends AppCompatActivity {
                         public void onClick(View v) {
                             mMediaRecorder.stop();
                             mMediaRecorder.reset();
-                            Log.v(TAG, "Stopping Recording");
+                            Log.v(TAG, "Stopping Recording Screen");
                             stopScreenSharing();
                             finish();
                         }
